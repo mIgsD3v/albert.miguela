@@ -197,7 +197,9 @@ const skills = [
   { name: 'Visual Studio', icon: '/techstack-icons/visualstudio.png' },
   { name: 'Axios', icon: '/techstack-icons/axios.png' },
   { name: 'React', icon: '/techstack-icons/react.png' },
-  { name: 'Hostinger', icon: '/techstack-icons/hostinger.png' }
+  { name: 'Hostinger', icon: '/techstack-icons/hostinger.png' },
+   { name: 'Hostinger', icon: '/techstack-icons/laragon.png' }
+
 ]
 
 </script>
