@@ -89,10 +89,22 @@ const floating = [
           Miguela.
         </h1>
 
-        <p class="mt-5 font-mono text-base text-slate-600 dark:text-slate-400 sm:text-lg" data-aos="fade-up" data-aos-delay="200">
-          <span class="text-brand-500">&gt;</span>
-          {{ typed }}<span class="ml-0.5 inline-block h-5 w-[2px] translate-y-1 animate-blink bg-brand-500"></span>
-        </p>
+        <!-- Role as a line of code -->
+        <div
+          class="mt-6 inline-flex max-w-full items-center gap-3 rounded-xl border border-slate-200 bg-white/70 px-3.5 py-2.5 font-mono text-[13px] shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.03] sm:text-base"
+          data-aos="fade-up"
+          data-aos-delay="200"
+          aria-live="polite"
+        >
+          <span class="hidden select-none text-xs text-slate-400 dark:text-slate-600 sm:inline">01</span>
+          <code class="whitespace-nowrap">
+            <span class="text-violet-600 dark:text-violet-400">const</span>
+            <span class="text-sky-600 dark:text-sky-300"> role</span>
+            <span class="text-slate-400"> = </span>
+            <span class="text-emerald-600 dark:text-emerald-400">"{{ typed }}<span class="ml-px inline-block h-[1.1em] w-[2px] translate-y-[3px] animate-blink bg-brand-500"></span>"</span>
+            <span class="text-slate-400">;</span>
+          </code>
+        </div>
 
         <p
           class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-600 dark:text-slate-400 lg:mx-0"

@@ -4,13 +4,13 @@ export const profile = {
   name: "Albert Miguela",
   handle: "mIgsD3v",
   role: "Full-Stack Developer",
-  roles: ["Full-Stack Developer", "Laravel Developer", "Vue.js Developer", "UI/UX Enthusiast"],
+  roles: ["Full-Stack Developer", "Laravel Developer", "Vue.js Developer", "AI Integration Developer"],
   location: "Philippines",
   email: "albertmiguela7@gmail.com",
   avatar: "/images/home-logo.png",
   resume: "/pdf/Albert_Miguela-Resume.pdf",
   bio:
-    "Full-Stack Developer with 3+ years of hands-on experience designing and maintaining secure, scalable web applications using Laravel, Vue.js, and PostgreSQL. Proven experience in building HR systems and device-tracking platforms that support business operations. Focused on clean, maintainable code that drives efficiency and usability.",
+    "Full-Stack Developer with 3 years of hands-on experience in designing and maintaining secure, scalable web applications. Proven experience in developing internal systems and operational platforms that support business processes. Focused on writing clean, maintainable code that improves efficiency, reliability, and user experience.",
 };
 
 export const socials = [
@@ -81,6 +81,8 @@ export const skills = [
   { name: "Hostinger", icon: icon("hostinger.png"), category: "DevOps" },
   { name: "GoDaddy", icon: icon("godaddy.png"), category: "DevOps" },
   { name: "cPanel", icon: icon("cpanel.png"), category: "DevOps" },
+  { name: "Ubuntu", icon: icon("ubuntu.svg"), category: "DevOps" },
+  { name: "IIS", icon: icon("iis.svg"), category: "DevOps" },
   { name: "Git", icon: icon("git.png"), category: "Tools" },
   { name: "GitHub", icon: icon("github.png"), category: "Tools" },
   { name: "VS Code", icon: icon("vscode.png"), category: "Tools" },
