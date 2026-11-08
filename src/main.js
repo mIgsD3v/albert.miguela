@@ -1,38 +1,29 @@
 import { createApp } from "vue";
-import App from "./App.vue";
-import "./assets/main.css";
-import router from "./router"; // ✅ imported router
 import { createPinia } from "pinia";
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
-// Initialize AOS
-AOS.init({
-  duration: 800,
-  easing: 'ease-out-cubic',
-  once: false,      // <-- animate every time element enters viewport
-  mirror: true,     // <-- animate when scrolling back
-});
-
-// Optional: refresh AOS after route change (for SPA)
-router.afterEach(() => {
-  AOS.refresh();
-});
-
-// Optional: refresh AOS on window resize
-window.addEventListener('resize', () => {
-  AOS.refresh();
-});
-
-// Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "swiper/css/autoplay";
+
+import "./assets/main.css";
+import App from "./App.vue";
+import router from "./router";
 
 const app = createApp(App);
-
 app.use(createPinia());
-app.use(router); // ✅ make sure to use the router
-
+app.use(router);
 app.mount("#app");
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+AOS.init({
+  duration: 700,
+  easing: "ease-out-cubic",
+  offset: 60,
+  once: true,
+  disable: reduceMotion,
+});
+
+router.afterEach(() => AOS.refresh());

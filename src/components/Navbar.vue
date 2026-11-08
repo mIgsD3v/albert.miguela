@@ -1,269 +1,259 @@
+<script setup>
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import { useRouter } from "vue-router";
+import { SunIcon, MoonIcon, Bars3Icon, XMarkIcon, ArrowUpIcon } from "@heroicons/vue/24/outline";
+import { navItems, profile } from "@/data/portfolio";
+
+const isScrolled = ref(false);
+const progress = ref(0);
+const activeId = ref("home");
+const mobileOpen = ref(false);
+const isDark = ref(document.documentElement.classList.contains("dark"));
+const router = useRouter();
+
+/* Theme */
+const toggleTheme = () => {
+  isDark.value = !isDark.value;
+  document.documentElement.classList.toggle("dark", isDark.value);
+  try {
+    localStorage.setItem("theme", isDark.value ? "dark" : "light");
+  } catch {}
+};
+
+/* Scrolling */
+const scrollTo = (href) => {
+  mobileOpen.value = false;
+  document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+};
+const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+let ticking = false;
+const onScroll = () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const y = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    isScrolled.value = y > 20;
+    progress.value = max > 0 ? Math.min(y / max, 1) : 0;
+    ticking = false;
+  });
+};
+
+/* Active section tracking */
+let observer;
+const observeSections = () => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) activeId.value = e.target.id;
+      });
+    },
+    { rootMargin: "-45% 0px -50% 0px" }
+  );
+  navItems.forEach(({ href }) => {
+    const el = document.querySelector(href);
+    if (el) observer.observe(el);
+  });
+};
+
+watch(mobileOpen, (open) => document.body.classList.toggle("overflow-hidden", open));
+
+const onKey = (e) => e.key === "Escape" && (mobileOpen.value = false);
+
+onMounted(() => {
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("keydown", onKey);
+  onScroll();
+  // sections live in <router-view>, which renders once the router resolves
+  router.isReady().then(() => nextTick(observeSections));
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", onScroll);
+  window.removeEventListener("keydown", onKey);
+  observer?.disconnect();
+});
+
+const RING = 2 * Math.PI * 22;
+</script>
+
 <template>
-  <header
-    :class="[
-      'fixed top-0 left-0 w-full z-[999] transition-all duration-300 ease-in-out',
-      isScrolled ? 'bg-white dark:bg-gray-900 py-2 shadow-md' : 'bg-transparent py-4',
-    ]"
-  >
-    <div class="mx-auto max-w-screen-xl flex items-center justify-between px-6">
-      <!-- Logo -->
-      <a
-        href="#home"
-        class="flex items-center text-2xl font-bold tracking-wide
-               text-gray-900 dark:text-gray-100
-               transition-colors duration-300"
-      >
-        mIgsD3v
-      </a>
-
-
-    <!-- Desktop Navigation -->
-    <nav class="hidden lg:flex justify-center w-full">
-      <ul class="flex items-center gap-x-16 pr-16">
-        <li v-for="menu in menuItems" :key="menu.name">
-          <a
-            href="#"
-            @click.prevent="scrollToSection(menu.href)"
-            class="text-gray-800 dark:text-gray-200 hover:text-[#34baeb] transition-colors duration-300 flex flex-col items-center"
-          >
-            <component :is="menu.icon" class="w-6 h-6 mb-1" />
-            <span class="sr-only">{{ menu.name }}</span> <!-- optional if you want accessibility -->
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-
-      <!-- Theme Toggle (Desktop Only) -->
-      <button
-        @click="toggleTheme"
-        class="hidden lg:flex w-10 h-10 p-2 rounded-full transition
-               bg-gray-200 hover:bg-gray-300
-               dark:bg-gray-800 dark:hover:bg-gray-700"
-        aria-label="Toggle theme"
-      >
-        <component
-          :is="isDark ? MoonIcon : SunIcon"
-          class="w-6 h-6 transition-colors
-                 text-gray-800 dark:text-[white]"
-        />
-      </button>
-
-      <!-- Mobile Menu Toggle -->
-      <div class="lg:hidden flex items-center gap-3">
-        <button
-          @click="toggleMobileMenu"
-          class="bg-transparent focus:outline-none transition-colors duration-300"
-        >
-          <!-- Hamburger icon -->
-          <div v-if="!mobileMenuOpen" class="grid grid-cols-3 gap-0.5 w-6 h-6">
-            <span
-              v-for="n in 9"
-              :key="n"
-              class="w-1.5 h-1.5 rounded-full bg-gray-900 dark:bg-gray-200"
-            ></span>
-          </div>
-
-          <!-- Close (X) icon -->
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-6 h-6 text-gray-900 dark:text-gray-200"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
+  <div class="site-chrome transition-opacity duration-300">
+    <!-- Scroll progress -->
+    <div class="fixed inset-x-0 top-0 z-[1001] h-[3px]">
+      <div
+        class="h-full origin-left bg-gradient-to-r from-brand-400 via-sky-500 to-indigo-500"
+        :style="{ transform: `scaleX(${progress})` }"
+      ></div>
     </div>
 
-    <!-- Mobile Menu -->
-    <transition name="fade">
-      <div
-        v-if="mobileMenuOpen"
-        class="lg:hidden fixed top-0 left-0 w-1/2 h-screen bg-white dark:bg-gray-900 shadow-md z-[999] p-6"
+    <!-- Header -->
+    <header class="fixed inset-x-0 top-0 z-[1000] flex justify-center px-4 transition-all duration-500" :class="isScrolled ? 'pt-3' : 'pt-5'">
+      <nav
+        class="flex w-full max-w-6xl items-center justify-between rounded-full px-3 py-2 transition-all duration-500 sm:px-4"
+        :class="isScrolled ? 'glass shadow-lg shadow-slate-900/5 dark:shadow-black/30' : 'border border-transparent'"
+        aria-label="Primary"
       >
-        <ul class="flex flex-col items-start gap-6 mt-6">
-          <li
-            v-for="menu in menuItems"
-            :key="menu.name"
-            data-aos="fade-right"
-            data-aos-duration="500"
+        <!-- Logo -->
+        <a href="#home" @click.prevent="scrollTo('#home')" class="group flex items-center gap-2.5 pl-1">
+          <span
+            class="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-indigo-500 font-mono text-sm font-bold text-white shadow-md shadow-brand-500/30 transition-transform duration-500 group-hover:rotate-[360deg]"
           >
+            AM
+          </span>
+          <span class="font-mono text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
+            {{ profile.handle }}<span class="text-brand-500">.</span>
+          </span>
+        </a>
+
+        <!-- Desktop links -->
+        <ul class="hidden items-center gap-1 lg:flex">
+          <li v-for="item in navItems" :key="item.name">
             <a
-              href="#"
-              @click.prevent="scrollToSection(menu.href); closeMobileMenu()"
-              class="flex items-center gap-2 text-gray-800 dark:text-gray-200 hover:text-[#800000] transition-colors duration-300"
+              :href="item.href"
+              @click.prevent="scrollTo(item.href)"
+              class="relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300"
+              :class="
+                activeId === item.href.slice(1)
+                  ? 'text-slate-900 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+              "
             >
-              <component :is="menu.icon" class="w-6 h-6" />
-              <span>{{ menu.name }}</span>
+              <span
+                v-if="activeId === item.href.slice(1)"
+                class="absolute inset-0 -z-10 rounded-full bg-slate-900/5 dark:bg-white/10"
+              ></span>
+              {{ item.name }}
             </a>
           </li>
-
-          <!-- Mobile Theme Toggle -->
-          <li data-aos="fade-right" data-aos-duration="500" data-aos-delay="100">
-            <button
-              @click="toggleTheme"
-              class="flex items-center gap-2 w-full px-3 py-2 rounded-md
-                     bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700
-                     text-gray-800 dark:text-gray-100 transition-colors duration-300"
-            >
-              <component
-                :is="isDark ? MoonIcon : SunIcon"
-                class="w-6 h-6"
-              />
-              <span>Theme</span>
-            </button>
-          </li>
         </ul>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="toggleTheme"
+            class="grid h-9 w-9 place-items-center rounded-full text-slate-600 transition hover:bg-slate-900/5 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+            :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <transition name="spin" mode="out-in">
+              <SunIcon v-if="isDark" key="sun" class="h-5 w-5" />
+              <MoonIcon v-else key="moon" class="h-5 w-5" />
+            </transition>
+          </button>
+
+          <button
+            @click="mobileOpen = !mobileOpen"
+            class="grid h-9 w-9 place-items-center rounded-full text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/10 lg:hidden"
+            :aria-expanded="mobileOpen"
+            aria-label="Toggle menu"
+          >
+            <XMarkIcon v-if="mobileOpen" class="h-6 w-6" />
+            <Bars3Icon v-else class="h-6 w-6" />
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile menu -->
+    <transition name="drawer">
+      <div v-if="mobileOpen" class="fixed inset-0 z-[999] lg:hidden" @click.self="mobileOpen = false">
+        <div class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" @click="mobileOpen = false"></div>
+        <div class="glass absolute inset-x-4 top-20 rounded-3xl p-3 shadow-2xl">
+          <ul class="flex flex-col">
+            <li v-for="(item, i) in navItems" :key="item.name">
+              <a
+                :href="item.href"
+                @click.prevent="scrollTo(item.href)"
+                class="flex items-center justify-between rounded-2xl px-4 py-3 text-base font-medium transition-colors"
+                :class="
+                  activeId === item.href.slice(1)
+                    ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                    : 'text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/5'
+                "
+              >
+                {{ item.name }}
+                <span class="font-mono text-xs opacity-50">0{{ i + 1 }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </transition>
-  </header>
-  <!-- 🔹 Scroll Progress Bar -->
-<div
-  ref="scrollBar"
-  class="fixed top-0 right-0 w-1 h-full
-         bg-gray-200 dark:bg-gray-700
-         z-[1000]"
->
-  <div
-    ref="scrollProgress"
-    class="w-full h-0
-           bg-[#34baeb]
-           transition-all duration-100 ease-out"
-  ></div>
-</div>
 
-<!-- 🔹 Scroll to Top Button -->
-<button
-  ref="toTop"
-  @click="scrollToTop"
-  class="hidden fixed bottom-4 right-4 z-[100]
-         animate-bounce
-         text-white dark:text-gray-100
-         p-4 rounded-full shadow-lg
-         transition-all duration-300
-         bg-[#34baeb]"
->
-  ↑
-</button>
-
+    <!-- Back to top with progress ring -->
+    <transition name="pop">
+      <button
+        v-show="progress > 0.08"
+        @click="scrollTop"
+        class="fixed bottom-6 right-6 z-[100] grid h-12 w-12 place-items-center rounded-full bg-white text-slate-800 shadow-xl shadow-slate-900/10 transition-transform hover:-translate-y-1 dark:bg-ink-800 dark:text-white dark:shadow-black/40"
+        aria-label="Back to top"
+      >
+        <svg class="absolute inset-0 -rotate-90" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="2" class="opacity-10" />
+          <circle
+            cx="24"
+            cy="24"
+            r="22"
+            fill="none"
+            stroke="url(#ringGrad)"
+            stroke-width="2"
+            stroke-linecap="round"
+            :stroke-dasharray="RING"
+            :stroke-dashoffset="RING * (1 - progress)"
+          />
+          <defs>
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#40c6f4" />
+              <stop offset="100%" stop-color="#6366f1" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <ArrowUpIcon class="relative h-5 w-5" />
+      </button>
+    </transition>
+  </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import {
-  HomeIcon,
-  CodeBracketIcon,
-  FolderIcon,
-  AcademicCapIcon,
-  EnvelopeIcon,
-  SunIcon,
-  MoonIcon
-} from '@heroicons/vue/24/outline'
-
-/* =========================
-   Navigation
-========================= */
-const menuItems = [
-  { name: 'Home', href: '#home', icon: HomeIcon },
-  { name: 'Skills', href: '#skills', icon: CodeBracketIcon },
-  { name: 'Projects', href: '#projects', icon: FolderIcon },
-  { name: 'Education', href: '#education', icon: AcademicCapIcon },
-  { name: 'Contact', href: '#contact', icon: EnvelopeIcon }
-]
-
-const mobileMenuOpen = ref(false)
-const toggleMobileMenu = () => (mobileMenuOpen.value = !mobileMenuOpen.value)
-const closeMobileMenu = () => (mobileMenuOpen.value = false)
-
-/* =========================
-   Header scroll effect
-========================= */
-const isScrolled = ref(false)
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 10
+<style scoped>
+.spin-enter-active,
+.spin-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.spin-enter-from {
+  transform: rotate(-90deg) scale(0.5);
+  opacity: 0;
+}
+.spin-leave-to {
+  transform: rotate(90deg) scale(0.5);
+  opacity: 0;
 }
 
-/* =========================
-   Dark / Light Theme
-========================= */
-const isDark = ref(false)
-
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  if (isDark.value) {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', 'light')
-  }
-
-  // Close mobile menu when theme changes
-  closeMobileMenu()
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: opacity 0.3s ease;
+}
+.drawer-enter-active .glass,
+.drawer-leave-active .glass {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  opacity: 0;
+}
+.drawer-enter-from .glass,
+.drawer-leave-to .glass {
+  transform: translateY(-12px) scale(0.97);
+  opacity: 0;
 }
 
-
-/* =========================
-   Scroll Progress + To Top
-========================= */
-const scrollBar = ref(null)
-const scrollProgress = ref(null)
-const toTop = ref(null)
-
-const handleScrollProgress = () => {
-  const scrollTop = window.scrollY
-  const docHeight =
-    document.documentElement.scrollHeight - window.innerHeight
-  const scrollPercent = (scrollTop / docHeight) * 100
-
-  if (scrollProgress.value) {
-    scrollProgress.value.style.height = `${scrollPercent}%`
-  }
-
-  if (toTop.value) {
-    scrollTop > 300
-      ? toTop.value.classList.remove('hidden')
-      : toTop.value.classList.add('hidden')
-  }
+.pop-enter-active,
+.pop-leave-active {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
-
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+.pop-enter-from,
+.pop-leave-to {
+  transform: scale(0.6);
+  opacity: 0;
 }
-
-/* =========================
-   Smooth Section Scroll
-========================= */
-const scrollToSection = (href) => {
-  const el = document.querySelector(href)
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
-}
-
-/* =========================
-   Lifecycle
-========================= */
-onMounted(() => {
-  // header effect
-  window.addEventListener('scroll', handleScroll)
-
-  // progress bar + button
-  window.addEventListener('scroll', handleScrollProgress)
-
-  // restore theme
-  if (localStorage.getItem('theme') === 'dark') {
-    document.documentElement.classList.add('dark')
-    isDark.value = true
-  }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-  window.removeEventListener('scroll', handleScrollProgress)
-})
-</script>
+</style>
