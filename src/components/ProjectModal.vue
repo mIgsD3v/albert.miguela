@@ -76,12 +76,12 @@ onBeforeUnmount(() => {
                 @swiper="(s) => (swiper = s)"
                 @slideChange="onSlideChange"
               >
-                <SwiperSlide v-for="(slide, i) in project.slides" :key="i" class="!flex h-full items-center justify-center p-4 sm:px-20 sm:py-8">
+                <SwiperSlide v-for="(slide, i) in project.slides" :key="i" class="!flex h-full items-center justify-center p-3 sm:px-20 sm:py-8">
                   <!-- browser frame -->
                   <figure
-                    class="flex max-h-full max-w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15 dark:border-white/10 dark:bg-ink-800 dark:shadow-black/50"
+                    class="flex max-h-full w-full flex-col overflow-hidden rounded-lg border sm:rounded-xl border-slate-200 bg-white shadow-2xl shadow-slate-900/15 dark:border-white/10 dark:bg-ink-800 dark:shadow-black/50"
                   >
-                    <div class="flex shrink-0 items-center gap-1.5 border-b border-slate-200 px-3 py-2 dark:border-white/10">
+                    <div class="flex shrink-0 items-center gap-1.5 border-b border-slate-200 px-2.5 py-1.5 dark:border-white/10 sm:px-3 sm:py-2">
                       <span class="h-2.5 w-2.5 rounded-full bg-red-400/80"></span>
                       <span class="h-2.5 w-2.5 rounded-full bg-amber-400/80"></span>
                       <span class="h-2.5 w-2.5 rounded-full bg-emerald-400/80"></span>
@@ -89,7 +89,7 @@ onBeforeUnmount(() => {
                     <img
                       :src="slide.image"
                       :alt="`${project.title} — screen ${i + 1}`"
-                      class="min-h-0 max-w-full object-contain"
+                      class="block h-auto min-h-0 w-full object-contain"
                       :loading="i === 0 ? 'eager' : 'lazy'"
                     />
                   </figure>
